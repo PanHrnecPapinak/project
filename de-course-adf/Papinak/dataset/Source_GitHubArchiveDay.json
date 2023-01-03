@@ -1,0 +1,22 @@
+{
+	"name": "Source_GitHubArchiveDay",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStorage1_GitHub",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Stackoverflow/Source/GitHub"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "github",
+				"fileSystem": "external"
+			}
+		},
+		"schema": {}
+	}
+}
