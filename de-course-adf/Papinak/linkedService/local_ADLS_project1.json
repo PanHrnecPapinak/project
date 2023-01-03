@@ -1,0 +1,10 @@
+{
+	"name": "local_ADLS_project1",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBlobFS",
+		"typeProperties": {
+			"url": "https://storage1project.dfs.core.windows.net/"
+		}
+	}
+}
