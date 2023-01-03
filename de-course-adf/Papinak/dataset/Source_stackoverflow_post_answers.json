@@ -98,5 +98,6 @@
 			"schema": "stackoverflow",
 			"table": "stackoverflow_post_answers"
 		}
-	}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
 }
