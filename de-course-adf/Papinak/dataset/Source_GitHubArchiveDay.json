@@ -6,7 +6,7 @@
 			"type": "LinkedServiceReference"
 		},
 		"folder": {
-			"name": "Stackoverflow/Source/GitHub"
+			"name": "Starting data/Source/GitHub"
 		},
 		"annotations": [],
 		"type": "Json",

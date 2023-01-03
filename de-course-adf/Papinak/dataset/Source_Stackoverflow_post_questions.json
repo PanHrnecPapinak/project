@@ -6,7 +6,7 @@
 			"type": "LinkedServiceReference"
 		},
 		"folder": {
-			"name": "Stackoverflow/Source/Stackoverflow"
+			"name": "Starting data/Source/Stackoverflow"
 		},
 		"annotations": [],
 		"type": "AzureSqlDWTable",
