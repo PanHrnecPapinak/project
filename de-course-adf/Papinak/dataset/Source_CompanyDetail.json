@@ -1,5 +1,5 @@
 {
-	"name": "RestResource1",
+	"name": "Source_CompanyDetail",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "RestService1_Company_detail",
@@ -7,7 +7,8 @@
 		},
 		"parameters": {
 			"p_load_date": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "20220831"
 			}
 		},
 		"folder": {
@@ -17,7 +18,7 @@
 		"type": "RestResource",
 		"typeProperties": {
 			"relativeUrl": {
-				"value": "@concat('get_company_data_api?',dataset().p_load_date)\n",
+				"value": "@concat('get_company_data_api?',dataset().p_load_date)",
 				"type": "Expression"
 			}
 		},
