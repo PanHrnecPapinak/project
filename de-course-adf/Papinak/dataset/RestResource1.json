@@ -1,0 +1,26 @@
+{
+	"name": "RestResource1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "RestService1_Company_detail",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"p_load_date": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "Starting data/Source/REST company details"
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"typeProperties": {
+			"relativeUrl": {
+				"value": "@concat('get_company_data_api?',dataset().p_load_date)\n",
+				"type": "Expression"
+			}
+		},
+		"schema": []
+	}
+}
