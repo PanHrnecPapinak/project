@@ -5,6 +5,11 @@
 			"referenceName": "AzureDataLakeStorage1_GitHub",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"p_load_date": {
+				"type": "string"
+			}
+		},
 		"folder": {
 			"name": "Starting data/Source/GitHub"
 		},
@@ -13,6 +18,10 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@concat('githubarchive_day_',dataset().p_load_date,'.json')",
+					"type": "Expression"
+				},
 				"folderPath": "github",
 				"fileSystem": "external"
 			}
