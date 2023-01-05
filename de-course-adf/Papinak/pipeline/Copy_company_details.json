@@ -69,6 +69,7 @@
 			},
 			{
 				"name": "Set variable1",
+				"description": "20220831",
 				"type": "SetVariable",
 				"dependsOn": [],
 				"userProperties": [],
