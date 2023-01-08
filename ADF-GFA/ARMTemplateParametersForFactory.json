@@ -1,0 +1,24 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "ADF-GFA"
+		},
+		"AzureDataLakeStorage1_GitHub_accountKey": {
+			"value": ""
+		},
+		"AzureSynapseAnalytics1_stackoverflow_connectionString": {
+			"value": ""
+		},
+		"AzureDataLakeStorage1_GitHub_properties_typeProperties_url": {
+			"value": "https://decoursesacc.dfs.core.windows.net"
+		},
+		"RestService1_Company_detail_properties_typeProperties_url": {
+			"value": "https://de-course-ingest-api.azurewebsites.net/api/"
+		},
+		"local_ADLS_project1_properties_typeProperties_url": {
+			"value": "https://gfaproject.dfs.core.windows.net/"
+		}
+	}
+}

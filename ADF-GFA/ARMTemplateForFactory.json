@@ -1,0 +1,842 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "ADF-GFA"
+		},
+		"AzureDataLakeStorage1_GitHub_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'AzureDataLakeStorage1_GitHub'"
+		},
+		"AzureSynapseAnalytics1_stackoverflow_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureSynapseAnalytics1_stackoverflow'"
+		},
+		"AzureDataLakeStorage1_GitHub_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://decoursesacc.dfs.core.windows.net"
+		},
+		"RestService1_Company_detail_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://de-course-ingest-api.azurewebsites.net/api/"
+		},
+		"local_ADLS_project1_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://gfaproject.dfs.core.windows.net/"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/Copy_GitHub')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy GitHub - enter date",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Source_GitHubArchiveDay",
+								"type": "DatasetReference",
+								"parameters": {
+									"p_load_date": {
+										"value": "@variables('v_load_date')",
+										"type": "Expression"
+									}
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Landing_GitHubArchiveDay",
+								"type": "DatasetReference",
+								"parameters": {
+									"p_load_date": {
+										"value": "@variables('v_load_date')",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"variables": {
+					"v_load_date": {
+						"type": "String",
+						"defaultValue": "20220930"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Source_GitHubArchiveDay')]",
+				"[concat(variables('factoryId'), '/datasets/Landing_GitHubArchiveDay')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Copy_company_details')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy company data from REST  - enter date",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET",
+								"paginationRules": {
+									"supportRFC5988": "true"
+								}
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Source_CompanyDetail",
+								"type": "DatasetReference",
+								"parameters": {
+									"p_load_date": {
+										"value": "@variables('v_load_date')",
+										"type": "Expression"
+									}
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Landing_CompanyDetail",
+								"type": "DatasetReference",
+								"parameters": {
+									"p_load_date": {
+										"value": "@variables('v_load_date')",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"variables": {
+					"v_load_date": {
+						"type": "String",
+						"defaultValue": "20220930"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Source_CompanyDetail')]",
+				"[concat(variables('factoryId'), '/datasets/Landing_CompanyDetail')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Copy_stackoverflow')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy Questions Stackoverflow",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlDWSource",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"enableSkipIncompatibleRow": true,
+							"logSettings": {
+								"enableCopyActivityLog": true,
+								"copyActivityLogSettings": {
+									"logLevel": "Warning",
+									"enableReliableLogging": false
+								},
+								"logLocationSettings": {
+									"linkedServiceName": {
+										"referenceName": "local_ADLS_project1",
+										"type": "LinkedServiceReference"
+									},
+									"path": "system"
+								}
+							},
+							"dataIntegrationUnits": 2,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "Source_Stackoverflow_post_questions",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Landing_StackoverflowPostQuestions",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Copy Answers Stackoverflow",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlDWSource",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"enableSkipIncompatibleRow": true,
+							"logSettings": {
+								"enableCopyActivityLog": true,
+								"copyActivityLogSettings": {
+									"logLevel": "Warning",
+									"enableReliableLogging": false
+								},
+								"logLocationSettings": {
+									"linkedServiceName": {
+										"referenceName": "local_ADLS_project1",
+										"type": "LinkedServiceReference"
+									},
+									"path": "system"
+								}
+							},
+							"dataIntegrationUnits": 2,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "Source_stackoverflow_post_answers",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Landing_StackoverflowPostAnswers",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Source_Stackoverflow_post_questions')]",
+				"[concat(variables('factoryId'), '/datasets/Landing_StackoverflowPostQuestions')]",
+				"[concat(variables('factoryId'), '/datasets/Source_stackoverflow_post_answers')]",
+				"[concat(variables('factoryId'), '/datasets/Landing_StackoverflowPostAnswers')]",
+				"[concat(variables('factoryId'), '/linkedServices/local_ADLS_project1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Landing_CompanyDetail')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "local_ADLS_project1",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"p_load_date": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Starting data/Landing/REST company details"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@concat('company_detail_',dataset().p_load_date,'.json')",
+							"type": "Expression"
+						},
+						"folderPath": "company_detail",
+						"fileSystem": "landing"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/local_ADLS_project1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Landing_GitHubArchiveDay')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "local_ADLS_project1",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"p_load_date": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Starting data/Landing/GitHub"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@concat('githubarchive_day_',dataset().p_load_date,'.json')",
+							"type": "Expression"
+						},
+						"folderPath": "GitHub",
+						"fileSystem": "landing"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/local_ADLS_project1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Landing_StackoverflowPostAnswers')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "local_ADLS_project1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Starting data/Landing/Stackoverflow"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "stackoverflow_post_answers.csv",
+						"folderPath": "stackoverflow",
+						"fileSystem": "landing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/local_ADLS_project1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Landing_StackoverflowPostQuestions')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "local_ADLS_project1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Starting data/Landing/Stackoverflow"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "stackoverflow_post_questions.csv",
+						"folderPath": "stackoverflow",
+						"fileSystem": "landing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": false,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/local_ADLS_project1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_CompanyDetail')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "RestService1_Company_detail",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"p_load_date": {
+						"type": "string",
+						"defaultValue": "20220831"
+					}
+				},
+				"folder": {
+					"name": "Starting data/Source/REST company details"
+				},
+				"annotations": [],
+				"type": "RestResource",
+				"typeProperties": {
+					"relativeUrl": {
+						"value": "@concat('get_company_data_api?p_load_date=',dataset().p_load_date)",
+						"type": "Expression"
+					}
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/RestService1_Company_detail')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_GitHubArchiveDay')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1_GitHub",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"p_load_date": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Starting data/Source/GitHub"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@concat('githubarchive_day_',dataset().p_load_date,'.json')",
+							"type": "Expression"
+						},
+						"folderPath": "github",
+						"fileSystem": "external"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1_GitHub')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_Stackoverflow_post_questions')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSynapseAnalytics1_stackoverflow",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Starting data/Source/Stackoverflow"
+				},
+				"annotations": [],
+				"type": "AzureSqlDWTable",
+				"schema": [
+					{
+						"name": "id",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "title",
+						"type": "nvarchar"
+					},
+					{
+						"name": "accepted_answer_id",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "answer_count",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "comment_count",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "community_owned_date",
+						"type": "nvarchar"
+					},
+					{
+						"name": "creation_date",
+						"type": "nvarchar"
+					},
+					{
+						"name": "favorite_count",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "last_activity_date",
+						"type": "nvarchar"
+					},
+					{
+						"name": "last_edit_date",
+						"type": "nvarchar"
+					},
+					{
+						"name": "last_editor_display_name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "last_editor_user_id",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "owner_display_name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "owner_user_id",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "parent_id",
+						"type": "nvarchar"
+					},
+					{
+						"name": "post_type_id",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "score",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "tags",
+						"type": "nvarchar"
+					},
+					{
+						"name": "view_count",
+						"type": "bigint",
+						"precision": 19
+					}
+				],
+				"typeProperties": {
+					"schema": "stackoverflow",
+					"table": "stackoverflow_post_questions"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSynapseAnalytics1_stackoverflow')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_stackoverflow_post_answers')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSynapseAnalytics1_stackoverflow",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Starting data/Source/Stackoverflow"
+				},
+				"annotations": [],
+				"type": "AzureSqlDWTable",
+				"schema": [
+					{
+						"name": "id",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "title",
+						"type": "nvarchar"
+					},
+					{
+						"name": "accepted_answer_id",
+						"type": "nvarchar"
+					},
+					{
+						"name": "answer_count",
+						"type": "nvarchar"
+					},
+					{
+						"name": "comment_count",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "community_owned_date",
+						"type": "nvarchar"
+					},
+					{
+						"name": "creation_date",
+						"type": "nvarchar"
+					},
+					{
+						"name": "favorite_count",
+						"type": "nvarchar"
+					},
+					{
+						"name": "last_activity_date",
+						"type": "nvarchar"
+					},
+					{
+						"name": "last_edit_date",
+						"type": "nvarchar"
+					},
+					{
+						"name": "last_editor_display_name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "last_editor_user_id",
+						"type": "nvarchar"
+					},
+					{
+						"name": "owner_display_name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "owner_user_id",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "parent_id",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "post_type_id",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "score",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "tags",
+						"type": "nvarchar"
+					},
+					{
+						"name": "view_count",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "stackoverflow",
+					"table": "stackoverflow_post_answers"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSynapseAnalytics1_stackoverflow')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureDataLakeStorage1_GitHub')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('AzureDataLakeStorage1_GitHub_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('AzureDataLakeStorage1_GitHub_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSynapseAnalytics1_stackoverflow')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDW",
+				"typeProperties": {
+					"connectionString": "[parameters('AzureSynapseAnalytics1_stackoverflow_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/RestService1_Company_detail')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "RestService",
+				"typeProperties": {
+					"url": "[parameters('RestService1_Company_detail_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/local_ADLS_project1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('local_ADLS_project1_properties_typeProperties_url')]"
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}
