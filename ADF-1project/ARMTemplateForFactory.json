@@ -106,7 +106,7 @@
 				"variables": {
 					"v_load_date": {
 						"type": "String",
-						"defaultValue": "20220731"
+						"defaultValue": "20220930"
 					}
 				},
 				"annotations": []
@@ -188,7 +188,7 @@
 				"variables": {
 					"v_load_date": {
 						"type": "String",
-						"defaultValue": "20220931"
+						"defaultValue": "20220930"
 					}
 				},
 				"annotations": []
