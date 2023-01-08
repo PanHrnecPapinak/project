@@ -61,12 +61,6 @@
 				]
 			}
 		],
-		"parameters": {
-			"v_load_data": {
-				"type": "string",
-				"defaultValue": "20220931"
-			}
-		},
 		"variables": {
 			"v_load_date": {
 				"type": "String",
