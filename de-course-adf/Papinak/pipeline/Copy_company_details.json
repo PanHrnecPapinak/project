@@ -3,16 +3,9 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Copy data1",
+				"name": "Copy company data from REST  - enter date",
 				"type": "Copy",
-				"dependsOn": [
-					{
-						"activity": "Set variable1",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
+				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -66,22 +59,18 @@
 						}
 					}
 				]
-			},
-			{
-				"name": "Set variable1",
-				"description": "20220831",
-				"type": "SetVariable",
-				"dependsOn": [],
-				"userProperties": [],
-				"typeProperties": {
-					"variableName": "v_load_date",
-					"value": "20220831"
-				}
 			}
 		],
+		"parameters": {
+			"v_load_data": {
+				"type": "string",
+				"defaultValue": "20220931"
+			}
+		},
 		"variables": {
 			"v_load_date": {
-				"type": "String"
+				"type": "String",
+				"defaultValue": "20220731"
 			}
 		},
 		"annotations": []

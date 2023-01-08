@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Copy Stackoverflow Questions",
+				"name": "Copy Questions Stackoverflow",
 				"type": "Copy",
 				"dependsOn": [],
 				"policy": {
@@ -71,7 +71,7 @@
 				]
 			},
 			{
-				"name": "Copy Stackoverflow Answers",
+				"name": "Copy Answers Stackoverflow",
 				"type": "Copy",
 				"dependsOn": [],
 				"policy": {
@@ -139,11 +139,6 @@
 				]
 			}
 		],
-		"variables": {
-			"v_load_date": {
-				"type": "String"
-			}
-		},
 		"annotations": []
 	}
 }
