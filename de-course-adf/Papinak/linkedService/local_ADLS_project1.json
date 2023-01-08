@@ -4,7 +4,7 @@
 		"annotations": [],
 		"type": "AzureBlobFS",
 		"typeProperties": {
-			"url": "https://storage1project.dfs.core.windows.net/"
+			"url": "https://gfaproject.dfs.core.windows.net/"
 		}
 	}
 }
